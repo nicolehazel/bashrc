@@ -118,12 +118,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# oracle
-export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
-export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
-export ORACLE_HOME=/usr/lib/oracle/12.1/client64
-export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
-
 #json
 alias pjson='python -m json.tool'
 
@@ -161,4 +155,11 @@ export MIS_BASE="$HOME/git/essence-mis-1"
 if [ -f $MIS_BASE/env.sh ]; then
     . "$MIS_BASE/env.sh"
 fi
+
+# oracle - ORACLE_HOME is also set in env.sh above so need to redefined it
+export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
+export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
+export ORACLE_HOME=/usr/lib/oracle/12.1/client64
+export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
+
 
