@@ -194,10 +194,6 @@ complete -o default -F _pip_completion pip
 #json
 alias pjson='python -m json.tool'
 
-# docker aliases
-alias dostart="service docker_oracle_xe start"
-alias dostop="service docker_oracle_xe stop"
-
 #git aliases - other aliases are now in .gitconfig
 alias g="git"
 alias gd='cd ~/git'
@@ -224,10 +220,16 @@ PATH=$PATH:$HOME/bin
 #json
 alias pjson='python -m json.tool'
 
+# docker service aliases
+alias dstart='service docker_oracle_xe start'
+alias dstop='service docker_oracle_xe stop'
+
 # docker aliases
-alias dockst="service docker_oracle_xe start"
-alias docksp="service docker_oracle_xe stop"
-alias dockex='function _docker_execute(){ echo "param1: $1"; }; _docker_execute'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias drmi='function _docker_rmi(){ echo "stop and remove image $1"; docker rmi $1; }; _docker_rmi'
+alias drmc='function _docker_rmc(){ echo "stop and remove container $1"; docker stop $1; docker rm $1; }; _docker_rmc'
+alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
 
 #git aliases - other aliases are now in .gitconfig
 alias g="git"
