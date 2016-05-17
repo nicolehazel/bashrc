@@ -191,6 +191,17 @@ _pip_completion()
 complete -o default -F _pip_completion pip
 # pip bash completion end
 
+#json
+alias pjson='python -m json.tool'
+
+# docker aliases
+alias dostart="service docker_oracle_xe start"
+alias dostop="service docker_oracle_xe stop"
+
+#git aliases - other aliases are now in .gitconfig
+alias g="git"
+alias gd='cd ~/git'
+
 # used to autocomplete ssh connections using aliases defined in ssh config...
 _ssh() 
 {
@@ -241,3 +252,4 @@ export ORACLE_HOME=/usr/lib/oracle/12.1/client64
 export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
 
 source ~/.django_bash_completion.sh
+
