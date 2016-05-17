@@ -225,8 +225,9 @@ PATH=$PATH:$HOME/bin
 alias pjson='python -m json.tool'
 
 # docker aliases
-alias dostart="service docker_oracle_xe start"
-alias dostop="service docker_oracle_xe stop"
+alias dockst="service docker_oracle_xe start"
+alias docksp="service docker_oracle_xe stop"
+alias dockex='function _docker_execute(){ echo "param1: $1"; }; _docker_execute'
 
 #git aliases - other aliases are now in .gitconfig
 alias g="git"
