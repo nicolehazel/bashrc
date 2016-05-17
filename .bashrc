@@ -231,6 +231,7 @@ alias drun='function _docker_run(){ echo " creating oracle_xe container $1 using
 alias drmi='function _docker_rmi(){ echo "stop and remove image $1"; docker rmi $1; }; _docker_rmi'
 alias drmc='function _docker_rmc(){ echo "stop and remove container $1"; docker stop $1; docker rm $1; }; _docker_rmc'
 alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
+alias dsql='function _docker_sql(){ local SYS="SYS"; local SCRIPT="$2"; local USER="$1"; echo "running sql script ${SCRIPT} as user ${USER}"; if [[ "${USER,,}" = "${SYS,,}" ]]; then local append=" as sysdba"; fi; sqlplus "${USER}/${USER}@localhost:1521/xe${append}" @${SCRIPT}; }; _docker_sql'
 
 #git aliases - other aliases are now in .gitconfig
 alias g="git"
