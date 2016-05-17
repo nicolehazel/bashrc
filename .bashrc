@@ -227,6 +227,7 @@ alias dstop='service docker_oracle_xe stop'
 # docker aliases
 alias dps='docker ps'
 alias dpsa='docker ps -a'
+alias drun='function _docker_run(){ echo " creating oracle_xe container $1 using port $2"; docker run -d -p $2:1521 --name $1 essence_oracle_xe; }; _docker_run'
 alias drmi='function _docker_rmi(){ echo "stop and remove image $1"; docker rmi $1; }; _docker_rmi'
 alias drmc='function _docker_rmc(){ echo "stop and remove container $1"; docker stop $1; docker rm $1; }; _docker_rmc'
 alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
