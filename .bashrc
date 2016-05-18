@@ -227,12 +227,6 @@ elif [[ $(hostname) = ${TEST_HOSTNAME} ]]; then
 else
     export MIS1_CONFIG="LocalConfig"
 
-    # oracle - ORACLE_HOME is also set in env.sh above so need to redefined it here
-    export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
-    export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
-    export ORACLE_HOME=/usr/lib/oracle/12.1/client64
-    export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
-
     # mod - autocompletes when using bash aliases which is sweet!
     if [ -f ~/bashrc/.git-completion.bash ]; then
         source ~/bashrc/.git-completion.bash
@@ -246,6 +240,11 @@ else
     if [ -f ${MIS_BASE}/env.sh ]; then
         . "$MIS_BASE/env.sh"
     fi
+    # oracle - ORACLE_HOME is also set in env.sh above so need to redefined it here
+    export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
+    export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
+    export ORACLE_HOME=/usr/lib/oracle/12.1/client64
+    export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
 
     export PYTHONPATH=~/git/ds-olive-3/:${PYTHONPATH}
     alias py27='source ~/pve/py27/bin/activate'
