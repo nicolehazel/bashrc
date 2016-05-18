@@ -191,13 +191,6 @@ _pip_completion()
 complete -o default -F _pip_completion pip
 # pip bash completion end
 
-#json
-alias pjson='python -m json.tool'
-
-#git aliases - other aliases are now in .gitconfig
-alias g="git"
-alias gd='cd ~/git'
-
 # used to autocomplete ssh connections using aliases defined in ssh config...
 _ssh() 
 {
@@ -217,44 +210,62 @@ PATH=/usr/local/php5/bin:$PATH
 PATH=$PATH:/usr/local/sbin
 PATH=$PATH:$HOME/bin
 
-#json
+# format json
 alias pjson='python -m json.tool'
 
-# docker service aliases
-alias dstart='service docker_oracle_xe start'
-alias dstop='service docker_oracle_xe stop'
-
-# docker aliases
-alias dps='docker ps'
-alias dpsa='docker ps -a'
-alias drun='function _docker_run(){ echo " creating oracle_xe container $1 using port $2"; docker run -d -v $MIS_BASE:/opt/essence-mis-1 --restart unless-stopped -p $2:1521 --name $1 essence_oracle_xe; }; _docker_run'
-alias drmi='function _docker_rmi(){ echo "stop and remove image $1"; docker rmi $1; }; _docker_rmi'
-alias drmc='function _docker_rmc(){ echo "stop and remove container $1"; docker stop $1; docker rm $1; }; _docker_rmc'
-alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
-alias dsql='function _docker_sql(){ local SYS="SYS"; local SCRIPT="$2"; local USER="$1"; if [[ -z ${DB_PORT} ]]; then local DB_PORT=1521; fi; echo "running sql script ${SCRIPT} as user ${USER} on port ${DB_PORT}"; if [[ "${USER,,}" = "${SYS,,}" ]]; then local append=" as sysdba"; fi; sqlplus "${USER}/${USER}@localhost:${DB_PORT}/xe${append}" @${SCRIPT}; }; _docker_sql'
-
-#git aliases - other aliases are now in .gitconfig
+# git aliases.
+# this is the only one that's required. All others are defined in .gitconfig
 alias g="git"
-alias gd='cd ~/git'
 
-# work specific
-export PYTHONPATH=~/git/ds-olive-3/:${PYTHONPATH}
-alias py27='source ~/pve/py27/bin/activate'
-alias py34='source ~/pve/py34/bin/activate'
-alias pylocal='source ~/pve/py34/bin/activate && export MIS3_CONFIG=LocalTestConfig && echo "MIS3_CONFIG set to LocalTestConfig"'
-alias pyprod='source ~/pve/py34/bin/activate && export MIS3_CONFIG=ProdConfig && echo "MIS3_CONFIG set to ProdConfig"'
-alias pyunit='export MIS3_CONFIG=LocalUnitTestConfig'
+# work specific. only run following on local machine. dont want to overwrite test server settings.
+export PROD_HOSTNAME="ess-lon-ora-001.internal.essence.co.uk"
+export TEST_HOSTNAME="ess-lon-oratest-002.internal.essence.co.uk"
 
-export MIS_BASE="$HOME/git/essence-mis-1"
-if [ -f $MIS_BASE/env.sh ]; then
-    . "$MIS_BASE/env.sh"
+if [[ $(hostname) = ${PROD_HOSTNAME} ]]; then
+    export MIS1_CONFIG="ProdConfig"
+elif [[ $(hostname) = ${TEST_HOSTNAME} ]]; then
+    export MIS1_CONFIG="TestConfig"
+else
+    export MIS1_CONFIG="LocalConfig"
+
+    # oracle - ORACLE_HOME is also set in env.sh above so need to redefined it here
+    export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
+    export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
+    export ORACLE_HOME=/usr/lib/oracle/12.1/client64
+    export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
+
+    if [[ -z ${MIS_BASE} ]]; then
+        #only set this if it's not currently set. test environment will have this already set.
+        export MIS_BASE="$HOME/git/essence-mis-1"
+    fi
+
+    if [ -f ${MIS_BASE}/env.sh ]; then
+        . "$MIS_BASE/env.sh"
+    fi
+
+    export PYTHONPATH=~/git/ds-olive-3/:${PYTHONPATH}
+    alias py27='source ~/pve/py27/bin/activate'
+    alias py34='source ~/pve/py34/bin/activate'
+    alias pylocal='source ~/pve/py34/bin/activate && export MIS3_CONFIG=LocalTestConfig && echo "MIS3_CONFIG set to LocalTestConfig"'
+    alias pyprod='source ~/pve/py34/bin/activate && export MIS3_CONFIG=ProdConfig && echo "MIS3_CONFIG set to ProdConfig"'
+    alias pyunit='export MIS3_CONFIG=LocalUnitTestConfig'
+
+    # github
+    alias gd='cd ~/git'
+
+    # docker service aliases
+    alias dstart='service docker_oracle_xe start'
+    alias dstop='service docker_oracle_xe stop'
+
+    # docker aliases
+    alias dps='docker ps'
+    alias dpsa='docker ps -a'
+    alias drun='function _docker_run(){ echo " creating oracle_xe container $1 using port $2"; docker run -d -v $MIS_BASE:/opt/essence-mis-1 --restart unless-stopped -p $2:1521 --name $1 essence_oracle_xe; }; _docker_run'
+    alias drmi='function _docker_rmi(){ echo "stop and remove image $1"; docker rmi $1; }; _docker_rmi'
+    alias drmc='function _docker_rmc(){ echo "stop and remove container $1"; docker stop $1; docker rm $1; }; _docker_rmc'
+    alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
+    alias dsql='function _docker_sql(){ local SYS="SYS"; local SCRIPT="$2"; local USER="$1"; if [[ -z ${DB_PORT} ]]; then local DB_PORT=1521; fi; echo "running sql script ${SCRIPT} as user ${USER} on port ${DB_PORT}"; if [[ "${USER,,}" = "${SYS,,}" ]]; then local append=" as sysdba"; fi; sqlplus "${USER}/${USER}@localhost:${DB_PORT}/xe${append}" @${SCRIPT}; }; _docker_sql'
+
+    source ~/.django_bash_completion.sh
+
 fi
-
-# oracle - ORACLE_HOME is also set in env.sh above so need to redefined it
-export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
-export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
-export ORACLE_HOME=/usr/lib/oracle/12.1/client64
-export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
-
-source ~/.django_bash_completion.sh
-
