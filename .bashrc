@@ -161,11 +161,6 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# mod - autocompletes when using bash aliases which is sweet!
-if [ -f ~/bashrc/.git-completion.bash ]; then
-    source ~/bashrc/.git-completion.bash
-fi
-
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -225,6 +220,10 @@ if [[ $(hostname) = ${PROD_HOSTNAME} ]]; then
     export MIS1_CONFIG="ProdConfig"
 elif [[ $(hostname) = ${TEST_HOSTNAME} ]]; then
     export MIS1_CONFIG="TestConfig"
+    # mod - autocompletes when using bash aliases which is sweet!
+    if [ -f ~/bashrc/.git-completion.bash ]; then
+        source ~/walkerd/bashrc/.git-completion.bash
+    fi
 else
     export MIS1_CONFIG="LocalConfig"
 
@@ -233,6 +232,11 @@ else
     export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
     export ORACLE_HOME=/usr/lib/oracle/12.1/client64
     export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
+
+    # mod - autocompletes when using bash aliases which is sweet!
+    if [ -f ~/bashrc/.git-completion.bash ]; then
+        source ~/bashrc/.git-completion.bash
+    fi
 
     if [[ -z ${MIS_BASE} ]]; then
         #only set this if it's not currently set. test environment will have this already set.
