@@ -221,7 +221,7 @@ if [[ $(hostname) = ${PROD_HOSTNAME} ]]; then
 elif [[ $(hostname) = ${TEST_HOSTNAME} ]]; then
     export MIS1_CONFIG="TestConfig"
     # mod - autocompletes when using bash aliases which is sweet!
-    if [ -f ~/bashrc/.git-completion.bash ]; then
+    if [ -f ~/walkerd/bashrc/.git-completion.bash ]; then
         source ~/walkerd/bashrc/.git-completion.bash
     fi
 else
