@@ -257,6 +257,8 @@ else
     if [[ -z ${CONN_STRING} ]]; then
         export CONN_STRING="@${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
     fi
+
+    alias ksqldev="ps -ef | grep sqldeveloper | awk '/[j]ava/{print $2}' | xargs -n1 kill; exit"
     ###########################################################################
 
 
@@ -296,7 +298,7 @@ else
 
 fi
 
-alias sqlo='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; echo sqlplus ${OLIVE_USER_STRING}${CONN_STRING} @$1; }; _run_sql_olive'
+alias sqlo='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus ${OLIVE_USER_STRING}${CONN_STRING} @$1; }; _run_sql_olive'
 
 # github
 alias gd='cd ~/git'    
