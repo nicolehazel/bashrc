@@ -172,9 +172,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-#. /etc/bash_completion.d/django_bash_completion
-export PYTHONSTARTUP=~/.pythonrc
-export DJANGO_COLORS="light"
 
 # pip bash completion start
 _pip_completion()
@@ -205,14 +202,8 @@ PATH=/usr/local/php5/bin:$PATH
 PATH=$PATH:/usr/local/sbin
 PATH=$PATH:$HOME/bin
 
-# format json
-alias pjson='python -m json.tool'
 
-# git aliases.
-# this is the only one that's required. All others are defined in .gitconfig
-alias g="git"
-
-# work specific. only run following on local machine. dont want to overwrite test server settings.
+# Work specific. only run following on local machine. dont want to overwrite test server settings.
 export PROD_HOSTNAME="ess-lon-ora-001.internal.essence.co.uk"
 export TEST_HOSTNAME="ess-lon-oratest-002.internal.essence.co.uk"
 
@@ -240,21 +231,50 @@ else
     if [ -f ${MIS_BASE}/env.sh ]; then
         . "$MIS_BASE/env.sh"
     fi
-    # oracle - ORACLE_HOME is also set in env.sh above so need to redefined it here
+    
+    ###########################################################################
+    ### ORACLE  
+    ###########################################################################
+
+    # ORACLE_HOME is also set in env.sh above so need to redefined it here
     export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
     export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
     export ORACLE_HOME=/usr/lib/oracle/12.1/client64
     export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
 
+    # General Oracle details
+    export DB_HOST="localhost"
+    export DB_PORT="1521"
+    export DB_SERVICE="xe"
+
+    # Credentials for use in Oracle XE docker containers
+    export SYSTEM_USER_STRING="system/oracle"
+    export SYS_USER_STRING="sys/sys"
+    export OLIVE_USER_STRING="olive/olive"
+    export SANFRAN_USER_STRING="sanfran/sanfran"
+    export EBAY_USER_STRING="ebay/ebay"
+
+    if [[ -z ${CONN_STRING} ]]; then
+        export CONN_STRING="@${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
+    fi
+    ###########################################################################
+
+
+    ###########################################################################
+    ### PYTHON
+    ###########################################################################
     export PYTHONPATH=~/git/ds-olive-3/:${PYTHONPATH}
     alias py27='source ~/pve/py27/bin/activate'
     alias py34='source ~/pve/py34/bin/activate'
     alias pylocal='source ~/pve/py34/bin/activate && export MIS3_CONFIG=LocalTestConfig && echo "MIS3_CONFIG set to LocalTestConfig"'
     alias pyprod='source ~/pve/py34/bin/activate && export MIS3_CONFIG=ProdConfig && echo "MIS3_CONFIG set to ProdConfig"'
     alias pyunit='export MIS3_CONFIG=LocalUnitTestConfig'
+    ###########################################################################
 
-    # github
-    alias gd='cd ~/git'
+
+    ###########################################################################
+    ### DOCKER
+    ###########################################################################
 
     # docker service aliases
     alias dstart='service docker_oracle_xe start'
@@ -269,6 +289,25 @@ else
     alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
     alias dsql='function _docker_sql(){ local SYS="SYS"; local SCRIPT="$2"; local USER="$1"; if [[ -z ${DB_PORT} ]]; then local DB_PORT=1521; fi; echo "running sql script ${SCRIPT} as user ${USER} on port ${DB_PORT}"; if [[ "${USER,,}" = "${SYS,,}" ]]; then local append=" as sysdba"; fi; sqlplus "${USER}/${USER}@localhost:${DB_PORT}/xe${append}" @${SCRIPT}; }; _docker_sql'
 
+    ###########################################################################
+
+    # django
     source ~/.django_bash_completion.sh
 
 fi
+
+alias sqlo='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; echo sqlplus ${OLIVE_USER_STRING}${CONN_STRING} @$1; }; _run_sql_olive'
+
+# github
+alias gd='cd ~/git'    
+
+#. /etc/bash_completion.d/django_bash_completion
+export PYTHONSTARTUP=~/.pythonrc
+export DJANGO_COLORS="light"
+
+# format json
+alias pjson='python -m json.tool'
+
+# git aliases.
+# this is the only one that's required. All others are defined in .gitconfig
+alias g="git"
