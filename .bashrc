@@ -315,3 +315,7 @@ alias pjson='python -m json.tool'
 # git aliases.
 # this is the only one that's required. All others are defined in .gitconfig
 alias g="git"
+
+alias sanitize='~/git/database-scripts/unix/sanitize'
+alias matrixize='/home/dave/bashrc/matrix'
+
