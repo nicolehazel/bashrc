@@ -204,32 +204,42 @@ PATH=$PATH:$HOME/bin
 
 
 # Work specific. only run following on local machine. dont want to overwrite test server settings.
-export PROD_HOSTNAME="ess-lon-ora-001.internal.essence.co.uk"
-export TEST_HOSTNAME="ess-lon-oratest-002.internal.essence.co.uk"
+export PROD_HOSTNAME='ess-lon-ora-001.internal.essence.co.uk'
+export TEST_HOSTNAME='ess-lon-oratest-002.internal.essence.co.uk'
 
 if [[ $(hostname) = ${PROD_HOSTNAME} ]]; then
-    export MIS1_CONFIG="ProdConfig"
+    echo "Setting MIS1_CONFIG='ProdConfig'"
+    export MIS1_CONFIG='ProdConfig'
 elif [[ $(hostname) = ${TEST_HOSTNAME} ]]; then
-    export MIS1_CONFIG="TestConfig"
+    echo "Setting MIS1_CONFIG='TestConfig'"
+    export MIS1_CONFIG='TestConfig'
     # mod - autocompletes when using bash aliases which is sweet!
     if [ -f ~/walkerd/bashrc/.git-completion.bash ]; then
         source ~/walkerd/bashrc/.git-completion.bash
+    else
+        echo "~/walkerd/bashrc/.git-completion.bash does not exist!"
     fi
 else
-    export MIS1_CONFIG="LocalConfig"
+    echo "Setting MIS1_CONFIG='TestConfig'"
+    export MIS1_CONFIG='LocalConfig'
 
     # mod - autocompletes when using bash aliases which is sweet!
     if [ -f ~/bashrc/.git-completion.bash ]; then
         source ~/bashrc/.git-completion.bash
+    else
+        echo "~/bashrc/.git-completion.bash does not exist!"
     fi
 
     if [[ -z ${MIS_BASE} ]]; then
         #only set this if it's not currently set. test environment will have this already set.
+        echo "Setting MIS_BASE=$HOME/git/essence-mis-1"
         export MIS_BASE="$HOME/git/essence-mis-1"
     fi
 
     if [ -f ${MIS_BASE}/env.sh ]; then
         . "$MIS_BASE/env.sh"
+    else
+        echo "$MIS_BASE/env.sh does not exist!"
     fi
     
     ###########################################################################
@@ -254,11 +264,20 @@ else
     export SANFRAN_USER_STRING="sanfran/sanfran"
     export EBAY_USER_STRING="ebay/ebay"
 
-    if [[ -z ${CONN_STRING} ]]; then
-        export CONN_STRING="@${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
+    if [[ -f ~/export_connections.sh ]]; then
+        . ~/export_connections.sh
+    else
+        echo "~/export_connections.sh does not exist!"
     fi
 
-    alias ksqldev="ps -ef | grep sqldeveloper | awk '/[j]ava/{print $2}' | xargs -n1 kill; exit"
+    if [[ -z ${CONN_STRING} ]]; then
+        echo "Setting CONN_STRING=${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
+        export CONN_STRING="${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
+    fi
+    export PROD_CONN_STRING="ess-lon-ora-001:1521/ffmis.essence.co.uk"
+    export TEST_CONN_STRING="ess-lon-oratest-002:1521/ffmis.essence.co.uk"
+
+    alias kill_sqldev="ps -ef | grep sqldeveloper | awk '/[j]ava/{print $2}' | xargs -n1 kill; exit"
     ###########################################################################
 
 
@@ -289,7 +308,7 @@ else
     alias drmi='function _docker_rmi(){ echo "stop and remove image $1"; docker rmi $1; }; _docker_rmi'
     alias drmc='function _docker_rmc(){ echo "stop and remove container $1"; docker stop $1; docker rm $1; }; _docker_rmc'
     alias dbsh='function _docker_execute(){ echo "starting bash in container $1"; docker exec -ti $1 bash; }; _docker_execute'
-    alias dsql='function _docker_sql(){ local SYS="SYS"; local SCRIPT="$2"; local USER="$1"; if [[ -z ${DB_PORT} ]]; then local DB_PORT=1521; fi; echo "running sql script ${SCRIPT} as user ${USER} on port ${DB_PORT}"; if [[ "${USER,,}" = "${SYS,,}" ]]; then local append=" as sysdba"; fi; sqlplus "${USER}/${USER}@localhost:${DB_PORT}/xe${append}" @${SCRIPT}; }; _docker_sql'
+    alias dsql='function _docker_sql(){ local SYS="SYS"; local SCRIPT="$2"; local USER="$1"; if [[ -z ${DB_PORT} ]]; then local DB_PORT=1521; fi; echo "running sql script ${SCRIPT} as user ${USER} on port ${DB_PORT}"; if [[ "${USER,,}" = "${SYS,,}" ]]; then local append=" as sysdba"; fi; sqlplus -L "${USER}/${USER}@localhost:${DB_PORT}/xe${append}" @${SCRIPT}; }; _docker_sql'
 
     ###########################################################################
 
@@ -298,9 +317,21 @@ else
 
 fi
 
-alias sqlo='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
-alias sqls='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; sqlplus ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
-alias sqlur='sqlo @ $MIS_BASE/release/scripts/update_release.sql'
+# Local sqlplus alias'
+alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}@${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
+alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}@${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SYS_USER_STRING}@${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
+alias sqllur='sqllol @ $MIS_BASE/release/scripts/update_release.sql'
+
+# PROD sqlplus alias'
+alias sqlpol='function _run_sql_prod_olive(){ sqlplus -L ${OLIVE_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_olive'
+alias sqlpsan='function _run_sql_prod_sanfran(){ sqlplus -L ${SANFRAN_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_sanfran'
+alias sqlpsys='function _run_sql_prod_sys(){ sqlplus -L ${SYS_PROD}@${PROD_CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_prod_sys'
+
+# TEST sqlplus alias'
+alias sqltol='function _run_sql_test_olive(){ sqlplus -L ${OLIVE_TEST}@${TEST_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_test_olive'
+alias sqltsan='function _run_sql_test_sanfran(){ sqlplus -L ${SANFRAN_TEST}@${TEST_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_test_sanfran'
+alias sqltsys='function _run_sql_test_sys(){ sqlplus -L ${SYS_TEST}@${TEST_CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_test_sys'
 
 # github
 alias gd='cd ~/git'    
