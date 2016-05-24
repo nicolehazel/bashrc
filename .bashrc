@@ -220,7 +220,7 @@ elif [[ $(hostname) = ${TEST_HOSTNAME} ]]; then
         echo "~/walkerd/bashrc/.git-completion.bash does not exist!"
     fi
 else
-    echo "Setting MIS1_CONFIG='TestConfig'"
+    echo "Setting MIS1_CONFIG='LocalConfig'"
     export MIS1_CONFIG='LocalConfig'
 
     # mod - autocompletes when using bash aliases which is sweet!
