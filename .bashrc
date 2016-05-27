@@ -350,3 +350,8 @@ alias g="git"
 alias sanitize='~/git/database-scripts/unix/sanitize'
 alias matrixize='/home/dave/bashrc/matrix'
 
+alias rmswp='find ./ -type f -name "\.*sw[klmnop]" -delete'
+
+alias wo_mis1='cd ~/git/essence-mis-1'
+alias wo_mis3='cd ~/git/ds-olive-3'
+
