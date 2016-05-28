@@ -272,7 +272,7 @@ else
 
     if [[ -z ${CONN_STRING} ]]; then
         echo "Setting CONN_STRING=${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
-        export CONN_STRING="${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
+        export CONN_STRING="@${DB_HOST}:${DB_PORT}/${DB_SERVICE}"
     fi
     export PROD_CONN_STRING="ess-lon-ora-001:1521/ffmis.essence.co.uk"
     export TEST_CONN_STRING="ess-lon-oratest-002:1521/ffmis.essence.co.uk"
@@ -318,9 +318,9 @@ else
 fi
 
 # Local sqlplus alias'
-alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}@${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
-alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}@${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
-alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SYS_USER_STRING}@${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
+alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
+alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
 alias sqllur='sqllol @ $MIS_BASE/release/scripts/update_release.sql'
 
 # PROD sqlplus alias'
