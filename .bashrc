@@ -352,6 +352,6 @@ alias matrixize='/home/dave/bashrc/matrix'
 
 alias rmswp='find ./ -type f -name "\.*sw[klmnop]" -delete'
 
-alias wo_mis1='cd ~/git/essence-mis-1'
-alias wo_mis3='cd ~/git/ds-olive-3'
+alias wo_mis1='if [[ ! -z ${VIRTUAL_ENV} ]]; then deactivate; fi; cd ~/git/essence-mis-1'
+alias wo_mis3='cd ~/git/ds-olive-3 && source ~/pve/py34/bin/activate'
 
