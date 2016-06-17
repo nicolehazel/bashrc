@@ -319,7 +319,7 @@ fi
 
 # Local sqlplus alias'
 alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
-alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${SANFRAN_USER_STRING} ]]; then echo "SANFRAN_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SANFRAN_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
 alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
 alias sqllur='sqllol @ $MIS_BASE/release/scripts/update_release.sql'
 
