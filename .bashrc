@@ -223,6 +223,10 @@ else
     echo "Setting MIS1_CONFIG='LocalConfig'"
     export MIS1_CONFIG='LocalConfig'
 
+    # https://oracle-base.com/articles/linux/rlwrap
+    alias rlsqlplus='rlwrap sqlplus'
+    alias rlrman='rlwrap rman'
+
     # mod - autocompletes when using bash aliases which is sweet!
     if [ -f ~/bashrc/.git-completion.bash ]; then
         source ~/bashrc/.git-completion.bash
@@ -320,20 +324,26 @@ else
 fi
 
 # Local sqlplus alias'
-alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
-alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${SANFRAN_USER_STRING} ]]; then echo "SANFRAN_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SANFRAN_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
-alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; sqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
+alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
+alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${SANFRAN_USER_STRING} ]]; then echo "SANFRAN_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SANFRAN_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
 alias sqllur='sqllol @ $MIS_BASE/release/scripts/update_release.sql'
 
 # PROD sqlplus alias'
-alias sqlpol='function _run_sql_prod_olive(){ sqlplus -L ${OLIVE_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_olive'
-alias sqlpsan='function _run_sql_prod_sanfran(){ sqlplus -L ${SANFRAN_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_sanfran'
-alias sqlpsys='function _run_sql_prod_sys(){ sqlplus -L ${SYS_PROD}@${PROD_CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_prod_sys'
+alias sqlpol='function _run_sql_prod_olive(){ rlsqlplus -L ${OLIVE_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_olive'
+alias sqlpsan='function _run_sql_prod_sanfran(){ rlsqlplus -L ${SANFRAN_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_sanfran'
+alias sqlpsys='function _run_sql_prod_sys(){ rlsqlplus -L ${SYS_PROD}@${PROD_CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_prod_sys'
 
 # TEST sqlplus alias'
-alias sqltol='function _run_sql_test_olive(){ sqlplus -L ${OLIVE_TEST}@${TEST_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_test_olive'
-alias sqltsan='function _run_sql_test_sanfran(){ sqlplus -L ${SANFRAN_TEST}@${TEST_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_test_sanfran'
-alias sqltsys='function _run_sql_test_sys(){ sqlplus -L ${SYS_TEST}@${TEST_CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_test_sys'
+alias sqltol='function _run_sql_test_olive(){ rlsqlplus -L ${OLIVE_TEST}@${TEST_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_test_olive'
+alias sqltsan='function _run_sql_test_sanfran(){ rlsqlplus -L ${SANFRAN_TEST}@${TEST_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_test_sanfran'
+alias sqltsys='function _run_sql_test_sys(){ rlsqlplus -L ${SYS_TEST}@${TEST_CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_test_sys'
+
+# Oracle EE inside docker commands
+export ORACLE_EE_PORT='1523'
+export ORACLE_EE_CONTAINER='oracle_11g_ee'
+alias dockoee='docker run -d --name ${ORACLE_EE_CONTAINER} -p ${ORACLE_EE_PORT}:1521 filemon/oracle_11g'
+alias sqleesys='rlsqlplus sys/admin@$(hostname):${ORACLE_EE_PORT}/orcl as sysdba'
 
 # github
 alias gd='cd ~/git'    
@@ -349,11 +359,21 @@ alias pjson='python -m json.tool'
 # this is the only one that's required. All others are defined in .gitconfig
 alias g="git"
 
+# following doesn't work yet
 alias sanitize='~/git/database-scripts/unix/sanitize'
+
+# a matrix screensaver for a bit of fun 
 alias matrixize='/home/dave/bashrc/matrix'
 
 alias rmswp='find ./ -type f -name "\.*sw[klmnop]" -delete'
 
+# github working directories
 alias wo_mis1='if [[ ! -z ${VIRTUAL_ENV} ]]; then deactivate; fi; cd ~/git/essence-mis-1'
 alias wo_mis3='cd ~/git/ds-olive-3 && source ~/pve/py34/bin/activate'
 
+# postgres aliases
+alias psql_pm='psql -h ess-lon-mis-db -p 15432 -d mis -U david.walker'
+alias psql_ps='psql -h ess-lon-mis-db -p 15432 -d mis -U david.walker'
+
+# force keyboard to be UK English
+setxkbmap gb
