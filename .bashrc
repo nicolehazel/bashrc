@@ -263,11 +263,11 @@ else
     export DB_SERVICE="xe"
 
     # Credentials for use in Oracle XE docker containers
-    export SYSTEM_USER_STRING="system/oracle"
-    export SYS_USER_STRING="sys/sys"
-    export OLIVE_USER_STRING="olive/olive"
-    export SANFRAN_USER_STRING="sanfran/sanfran"
-    export EBAY_USER_STRING="ebay/ebay"
+    #export SYSTEM_USER_STRING="system/oracle"
+    #export SYS_USER_STRING="sys/sys"
+    #export OLIVE_USER_STRING="olive/olive"
+    #export SANFRAN_USER_STRING="sanfran/sanfran"
+    #export EBAY_USER_STRING="ebay/ebay"
 
     if [[ -f ~/export_connections.sh ]]; then
         . ~/export_connections.sh
@@ -324,9 +324,12 @@ else
 fi
 
 # Local sqlplus alias'
-alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
-alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${SANFRAN_USER_STRING} ]]; then echo "SANFRAN_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SANFRAN_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
-alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
+#alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
+alias sqllol='function _run_sql_olive(){ rlsqlplus -L /@olive $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
+#alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${SANFRAN_USER_STRING} ]]; then echo "SANFRAN_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SANFRAN_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+alias sqllsan='function _run_sql_sanfran(){ rlsqlplus -L /@sanfran $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+#alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
+alias sqllsys='function _run_sql_sys(){ rlsqlplus -L /@sys as sysdba $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
 alias sqllur='sqllol @ $MIS_BASE/release/scripts/update_release.sql'
 
 # PROD sqlplus alias'
