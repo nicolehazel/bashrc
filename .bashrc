@@ -116,6 +116,9 @@ PS1='\[\033[$TIME_COLOUR\]$(date +%H:%M)\[\033[00m\] ${debian_chroot:+($debian_c
 #fi
 unset color_prompt force_color_prompt
 
+# Custom: turn off suspend/resume terminal functionality
+stty -ixon
+
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
@@ -254,7 +257,7 @@ else
     export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib/:${LD_LIBRARY_PATH}
     export OCI_LIB=/usr/lib/oracle/12.1/client64/lib
     export ORACLE_HOME=/usr/lib/oracle/12.1/client64
-    export PATH=/usr/lib/oracle/12.1/client64/bin:${PATH}
+    export PATH=${PATH}:$ORACLE_HOME/bin:$ORACLE_HOME/sqlcl/bin
     export SQLPATH=$ORACLE_HOME/sqlplus/admin
 
     # General Oracle details
@@ -325,12 +328,13 @@ fi
 
 # Local sqlplus alias'
 #alias sqllol='function _run_sql_olive(){ if [[ -z ${OLIVE_USER_STRING} ]]; then echo "OLIVE_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${OLIVE_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
-alias sqllol='function _run_sql_olive(){ rlsqlplus -L /@olive $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
+alias sqllol='function _run_sql_olive(){ local SQLPATH=$ORACLE_HOME/sqlcl ; sql /@jdbc:oracle:oci8:@olive $1 $2 $3 $4 $5 $6; }; _run_sql_olive'
 #alias sqllsan='function _run_sql_sanfran(){ if [[ -z ${SANFRAN_USER_STRING} ]]; then echo "SANFRAN_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SANFRAN_USER_STRING}${CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
-alias sqllsan='function _run_sql_sanfran(){ rlsqlplus -L /@sanfran $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
+alias sqllsan='function _run_sql_sanfran(){  local SQLPATH=$ORACLE_HOME/sqlcl ; sql /@jdbc:oracle:oci8:@sanfran $1 $2 $3 $4 $5 $6; }; _run_sql_sanfran'
 #alias sqllsys='function _run_sql_sys(){ if [[ -z ${SYS_USER_STRING} ]]; then echo "SYS_USER_STRING not set. Cannot execute"; fi; rlsqlplus -L ${SYS_USER_STRING}${CONN_STRING} AS SYSDBA $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
-alias sqllsys='function _run_sql_sys(){ rlsqlplus -L /@sys as sysdba $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
+alias sqllsys='function _run_sql_sys(){ local SQLPATH=$ORACLE_HOME/sqlcl ; sql /@jdbc:oracle:oci8:@sys as sysdba $1 $2 $3 $4 $5 $6; }; _run_sql_sys'
 alias sqllur='sqllol @ $MIS_BASE/release/scripts/update_release.sql'
+alias get_ddl='~/ddl_extract/get_ddl.sh'
 
 # PROD sqlplus alias'
 alias sqlpol='function _run_sql_prod_olive(){ rlsqlplus -L ${OLIVE_PROD}@${PROD_CONN_STRING} $1 $2 $3 $4 $5 $6; }; _run_sql_prod_olive'
@@ -355,6 +359,10 @@ alias gd='cd ~/git'
 export PYTHONSTARTUP=~/.pythonrc
 export DJANGO_COLORS="light"
 
+# fc settings
+export FCEDIT=vim
+alias r='fc -s'
+
 # format json
 alias pjson='python -m json.tool'
 
@@ -375,8 +383,12 @@ alias wo_mis1='if [[ ! -z ${VIRTUAL_ENV} ]]; then deactivate; fi; cd ~/git/essen
 alias wo_mis3='cd ~/git/ds-olive-3 && source ~/pve/py34/bin/activate'
 
 # postgres aliases
-alias psql_pm='psql -h ess-lon-mis-db -p 15432 -d mis -U david.walker'
-alias psql_ps='psql -h ess-lon-mis-db -p 15432 -d mis -U david.walker'
+alias ppm='psql -h ess-lon-mis-db -p 15432 -d mis -U david.walker'
+alias pps='psql -h ess-lon-mis-db -p 15432 -d mis -U david.walker'
 
 # force keyboard to be UK English
 setxkbmap gb
+
+alias essvpn='nohup /home/dave/Downloads/forticlientsslvpn/64bit/forticlientsslvpn &'
+
+
