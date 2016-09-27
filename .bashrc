@@ -146,6 +146,7 @@ alias la='ls -A'
 alias l='ls -CF'
 alias less='less -R'
 alias g='git'
+alias gsync='g fo && g m origin/master && g f --prune'
 alias phpunit='phpunit --colors'
 alias py='python'
 alias uctag="ctags -R --exclude='.git' ."
@@ -353,7 +354,8 @@ alias dockoee='docker run -d --name ${ORACLE_EE_CONTAINER} -p ${ORACLE_EE_PORT}:
 alias sqleesys='rlsqlplus sys/admin@$(hostname):${ORACLE_EE_PORT}/orcl as sysdba'
 
 # github
-alias gd='cd ~/git'    
+alias gd='cd ~/git'
+alias gref='git fetch origin && git merge origin/$(git rev-parse --abbrev-ref HEAD) && git fetch --prune'
 
 #. /etc/bash_completion.d/django_bash_completion
 export PYTHONSTARTUP=~/.pythonrc

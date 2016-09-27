@@ -1,1 +1,7 @@
+\set PSQL_EDITOR "/usr/bin/vim"
 \set PROMPT1 '%[%033[1;33;40m%](%n@%M:%>) %`date +%H:%M:%S` [%/] %[%033[0m%] \n%x%/-# '
+\set HISTFILE ~/.psql_history- :DBNAME
+\pset pager off
+\pset linestyle unicode
+\pset border 2
+\x auto
