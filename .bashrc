@@ -393,4 +393,12 @@ setxkbmap gb
 
 alias essvpn='nohup /home/dave/Downloads/forticlientsslvpn/64bit/forticlientsslvpn &'
 
+# alias for pushd and popd
+alias dirs='dirs -v'
+
+# alias for accessing phone mount
+alias cdp='cd $XDG_RUNTIME_DIR/gvf'
+
+# list directories only (same method)
+function listdirs(){ set -- */; printf "%s\n" "${@%/}"; }
 
