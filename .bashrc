@@ -286,8 +286,8 @@ else
     export PROD_CONN_STRING="ess-lon-ora-001:1521/ffmis.essence.co.uk"
     export TEST_CONN_STRING="ess-lon-oratest-002:1521/ffmis.essence.co.uk"
 
-    alias kill_sqldev="ps -ef | grep sqldeveloper | awk '/[j]ava/{print $2}' | xargs -n1 kill; exit"
-    alias kill_pgadmin="ps -ef | grep pgadmin3 | grep -v grep | awk '{print $2}' | xargs -n1 kill; exit"
+    alias kill_sqldev="ps -ef | grep sqldeveloper | awk '/[j]ava/{print \$2}' | xargs -n1 kill; exit"
+    alias kill_pgadmin="ps -ef | grep pgadmin3 | grep -v grep | awk '{print \$2}' | xargs -n1 kill; exit"
     ###########################################################################
 
 
