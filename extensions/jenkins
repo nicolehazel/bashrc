@@ -13,24 +13,34 @@
 OLD_AWS_PROFILE=$AWS_PROFILE
 export AWS_PROFILE=daithi
 
-ssh-add --apple-use-keychain ~/.ssh/walker.pem
+OLD_AWS_REGION=$AWS_REGION
+export AWS_REGION=us-west-2
+
+# My ec2 instance for running 
+EC2_INSTANCE_ID=i-039673e2f61289977
+EC2_JENKINS_MASTER=i-0efe14ad9cdd50895
+EC2_JENKINS_WORKER1=i-0196603ef609742ba
+EC2_JENKINS_WORKER2=i-0a0879a4c4e272c44
+
+ssh-add --apple-use-keychain "$HOME/.ssh/$USER.pem"
 
 ssh_ec2() {
-  EC2_ADDRESS=$(aws ec2 describe-instances --filters "Name=instance-id,Values=i-039673e2f61289977" --query "Reservations[].Instances[].PublicDnsName" --region us-west-2 | jq -r '.[0]' | tr -d '\n')
+  EC2_ADDRESS=$(aws ec2 describe-instances --filters "Name=instance-id,Values=$EC2_INSTANCE_ID" --query "Reservations[].Instances[].PublicDnsName" --region $AWS_REGION | jq -r '.[0]' | tr -d '\n')
   ssh ubuntu@$EC2_ADDRESS
 }
 
 ec2_address() {
-  aws ec2 describe-instances --filters "Name=instance-id,Values=$1" --query "Reservations[].Instances[].PublicDnsName" --region us-west-2 | jq -r '.[0]' | tr -d '\n'
+  aws ec2 describe-instances --filters "Name=instance-id,Values=$1" --query "Reservations[].Instances[].PublicDnsName" --region $AWS_REGION | jq -r '.[0]' | tr -d '\n'
   echo
 }
 
-ec2_address i-0efe14ad9cdd50895
-ec2_address i-0196603ef609742ba
-ec2_address i-0a0879a4c4e272c44
+ec2_address $EC2_JENKINS_MASTER
+ec2_address $EC2_JENKINS_WORKER1
+ec2_address $EC2_JENKINS_WORKER2
 
-# Reset the profile to what it was previously.
+# Reset the profile and region to what it was previously.
 export AWS_PROFILE=$OLD_AWS_PROFILE
+export AWS_REGION=$OLD_AWS_REGION
 
 ### ALIASES
 alias ssh_jenkins="ssh -t jenkins_w1 'sudo su - jenkins'"

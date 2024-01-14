@@ -64,6 +64,7 @@ function switch {
     fi
     export PRODUCT_ENV="$PRODUCT-$ENV"
     cd "$GIT_QEMIST" || echo "Directory $GIT_QEMIST does not exist"
+    source "$HOME/venv/qemist-cloud/bin/activate"
 }
 
 function deploy {

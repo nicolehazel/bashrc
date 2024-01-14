@@ -45,7 +45,8 @@ function source_ext() {
 }
 
 echo "Adding extensions:"
-source_ext .bash_aliases
+source_ext aws
+source_ext bash_aliases
 source_ext docker
 source_ext gcp
 source_ext git
