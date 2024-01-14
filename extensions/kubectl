@@ -1,0 +1,214 @@
+###########################################################################
+### Kubectl Extensions
+### 
+### Some fo the functions below are no longer valid. They were used for PFAs
+###########################################################################
+
+### ALIASES
+alias kube="kubectl"
+alias kd="kubectl describe"
+alias kl="kubectl logs"
+alias klf="kubectl logs -f"
+alias kgp="kubectl get pods"
+alias kgpa="kubectl get pods --all-namespaces" 
+alias ktp="kubectl top pods"
+alias kgn="kubectl get nodes"
+alias kls="kubectl get pods -n qemist -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq"
+alias kadd="diff -y <( kubectl top po --all-namespaces | awk '{print \$2}' ) <( kubectl get po --all-namespaces | awk '{print \$2}' ) | grep '>' | awk '{print \$2}'"
+
+
+### FUNCTIONS
+kgni() {
+  kubectl get nodes -o json|jq -Cjr '.items[] | .metadata.name," ",.metadata.labels."beta.kubernetes.io/instance-type"," ",.metadata.labels."beta.kubernetes.io/arch", "\n"'|sort -k2 -r|column -t
+}
+
+knit() {
+   kubectl get nodes -o json|jq -Cjr '.items[] | .metadata.name," ",.metadata.labels."beta.kubernetes.io/instance-type"," ",.metadata.labels."beta.kubernetes.io/arch", "\n"'|sort -k2 -r|column -t
+}
+
+kup() {
+  if [ $# -ne 1 ]; then echo "Incorrect arguments supplied"; return 1; fi
+  pattern=$1
+  kubectl get pods | grep $pattern  | awk '{ print $3 } ' | sort | uniq -c
+}
+
+kups() {
+  if [ $# -ne 1 ]; then echo "No arguments supplied"; return 1; fi
+  SLEEP=3
+  pattern=$1
+  while true; echo $(date); do kup $pattern; echo; sleep $SLEEP; done
+}
+
+ksn() {
+  if [ $# -ne 1 ]; then echo "Incorrect arguments supplied"; return 1; fi
+  namespace=$1
+  kubectl config set-context --current --namespace=$namespace
+}
+
+kkill() {
+  if [ $# -ne 1 ]; then state="Terminating"; else state=$1; fi
+  echo "Force deleting $state pods";
+  kubectl get pod -n qemist | grep $state | awk '{print $1}' | xargs kubectl delete pod -n qemist --force
+}
+
+kexec() {
+  kubectl exec -it $1 -- bash
+}
+
+kcp() {
+	SPOT=$(kubectl get pods -n qemist | grep -v Terminating | grep spot | awk '{ print $1}' | head -n 1)
+	kubectl cp "$GIT_QEMIST/$1" qemist/${SPOT}:/root/QEMIST/$1
+}
+
+ksd() {
+    kubectl get secret $1 -o json | jq '.data | map_values(@base64d)'
+}
+
+kssm() {
+  POD_NAME=$1
+  NAMEPSACE=$2
+  aws ssm start-session --target \
+    $(kubectl get node \
+      $(kubectl get pods -n ${NAMESPACE} ${POD_NAME} \
+        -o json | jq -r '.spec.nodeName') \
+      -ojson | jq -r '"\(.spec.providerID / "/" | .[-1])"' \
+    )
+}
+
+ks() {
+  if [ $# -eq 0 ]; then echo "No arguments supplied"; return 1; fi
+  aws eks update-kubeconfig --region us-east-1 --name qemist-pfasmulti-$1
+  kubectl config set-context --current --namespace=qemist
+  if [ "$2" == "Y" ]; then
+    echo; echo "POD TYPE COUNT"; kubectl get pods | tail -n +2 | awk ' {print $1} ' | rev | cut -d'-' -f3- | rev | sort | uniq -c
+    echo; echo "SERVICES"; kubectl get services -o=custom-columns=NAME:.metadata.name,LOAD_BALANCER:.status.loadBalancer.ingress[0].hostname
+    echo; echo "HPA"; kubectl get hpa -n qemist -o=custom-columns=NAME:.metadata.name,MINPODS:.spec.minReplicas,MAXPODS:.spec.maxReplicas
+  fi
+}
+
+multiscale() {
+  if [ $# -ne 2 ]; then echo "HPA and REPLICAS paramters are required"; return 1; fi
+  if [ "$1" != "ess" ] && [ "$1" != "spot" ]; then echo "Invalid HPA value"; return 1; fi
+  if [ "$1" == "ess" ]; then DEPLOYMENT="ess-worker"; else DEPLOYMENT="ess-spot-worker"; fi
+  MAX_CLUSTERS=15
+  REPLICAS=$2
+  for i in $(seq 3 $MAX_CLUSTERS); do
+    cluster="qemist-pfasmulti-$i"
+    echo "-----------------------------------------"
+    echo "PROCESSING CLUSTER: $cluster"
+    echo
+    aws eks update-kubeconfig --region us-east-1 --name qemist-pfasmulti-$i
+    kubectl config set-context --current --namespace=qemist
+    kubectl scale --replicas=$REPLICAS deploy $DEPLOYMENT;
+  done
+}
+
+multi_hotstart() {
+  if [ $# -ne 1 ]; then echo "TARGET paramter required"; return 1; fi
+  target=$1
+  hpa="ess-spot-worker-hpa"
+  MAX_CLUSTERS=15
+
+  for i in $(seq 3 $MAX_CLUSTERS); do
+    cluster="qemist-pfasmulti-$i"
+    echo "-----------------------------------------"
+    echo "PROCESSING CLUSTER: $cluster"
+    echo
+    aws eks update-kubeconfig --region us-east-1 --name $cluster
+    kubectl config set-context --current --namespace=qemist
+    echo "PROCESSING HPA: $hpa"
+    kubectl get hpa $hpa
+    kubectl patch hpa $hpa --patch '{"spec":{"minReplicas":$target}}'
+    kubectl patch hpa $hpa --patch '{"spec":{"maxReplicas":$target}}'
+    echo
+    sleep 1
+    echo "DELETING TERMINATED PODS"
+    kubectl get pod | grep Terminating | awk ' { print $1 } ' | xargs kubectl delete pod --force
+  done
+}
+
+
+multi_max() {
+  if [ $# -ne 1 ]; then echo "TARGET paramter required"; return 1; fi
+  target=$1
+  hpa="ess-spot-worker-hpa"
+  MAX_CLUSTERS=15
+
+  for i in $(seq 3 $MAX_CLUSTERS); do
+    cluster="qemist-pfasmulti-$i"
+    echo "-----------------------------------------"
+    echo "PROCESSING CLUSTER: $cluster"
+    echo
+    aws eks update-kubeconfig --region us-east-1 --name $cluster
+    kubectl config set-context --current --namespace=qemist
+    echo "PROCESSING HPA: $hpa"
+    kubectl get hpa $hpa
+    kubectl patch hpa $hpa --patch '{"spec":{"minReplicas":1}}'
+    kubectl patch hpa $hpa --patch '{"spec":{"maxReplicas":$target}}'
+    echo
+    sleep 1
+    echo "DELETING TERMINATED PODS"
+    kubectl get pod | grep Terminating | awk '{print $1}' | xargs kubectl delete pod --force
+  done
+}
+
+
+multidown() {
+  MAX_CLUSTERS=15
+  for i in $(seq 3 $MAX_CLUSTERS); do
+    cluster="qemist-pfasmulti-$i"
+    echo "-----------------------------------------"
+    echo "PROCESSING CLUSTER: $cluster"
+    echo
+    aws eks update-kubeconfig --region us-east-1 --name $cluster
+    kubectl config set-context --current --namespace=qemist
+    for hpa in $(kubectl get hpa --no-headers | awk ' { print $1 } '); do
+      echo "PROCESSING HPA: $hpa"
+      kubectl get hpa $hpa
+      kubectl patch hpa $hpa --patch '{"spec":{"minReplicas":1}}'
+      kubectl patch hpa $hpa --patch '{"spec":{"maxReplicas":100}}'
+      echo
+    done
+    #sleep 1
+    #echo "DELETING TERMINATED PODS" 
+    #kubectl get pod | grep Terminating | awk '{print $1}' | xargs kubectl delete pod --force
+  done
+}
+
+multi_delete_hpa() {
+  MAX_CLUSTERS=15
+  for i in $(seq 3 $MAX_CLUSTERS); do
+    cluster="qemist-pfasmulti-$i"
+    echo "-----------------------------------------"
+    echo "PROCESSING CLUSTER: $cluster"
+    echo
+    aws eks update-kubeconfig --region us-east-1 --name $cluster
+    kubectl config set-context --current --namespace=qemist
+    kubectl delete hpa ess-spot-worker-hpa
+    done
+}
+
+multimon() {
+  MAX_CLUSTERS=5
+  while true; do
+    for i in $(seq 3 $MAX_CLUSTERS); do
+      cluster="qemist-pfasmulti-$i"
+      echo "-----------------------------------------"
+      echo "PROCESSING CLUSTER: $cluster"
+      aws eks update-kubeconfig --region us-east-1 --name $cluster
+      kubectl config set-context --current --namespace=qemist
+      echo; echo Listing rabbit queues
+      kubectl exec qemist-rabbitmq-server-1 -- rabbitmqctl list_queues name, messages, consumers  --formatter=pretty_table name
+#      echo; echo Listing ess-worker instance status count
+#      kubectl get pods | grep ess-worker | awk '{ print $3} ' | sort | uniq -c
+      echo; echo Listing ess-spot-worker instance status count
+      kubectl get pods | grep ess-spot-worker | awk '{ print $3} ' | sort | uniq -c
+      echo; echo Checking for Terminated pods
+      kubectl get pod | grep Terminating | awk '{print $1}' | xargs kubectl delete pod --force
+      echo; echo Checking for low cpu usage
+      kubectl top pods | grep spot | grep ' 0m \| 1m ' | awk ' { print $1 } ' | wc -l # xargs kubectl delete pod --force
+      echo
+    done
+  done
+}
+

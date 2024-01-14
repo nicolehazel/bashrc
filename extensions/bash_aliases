@@ -1,0 +1,17 @@
+###########################################################################
+### General Bash Extensions
+###########################################################################
+
+### ALIASES
+alias l='ls -CF'
+alias ll='ls -alhF'
+alias la='ls -A'
+alias less='less -R'
+
+
+### FUNCTIONS
+
+# list directories only (same method)
+function listdirs(){
+  set -- */; printf "%s\n" "${@%/}"; 
+}

@@ -1,0 +1,81 @@
+###########################################################################
+### QEMIST Extensions
+###########################################################################
+
+# Environment Variables
+export M2_CHIP="true"
+
+# Functions
+function _set_product {
+    export PRODUCT=$1
+    echo "Product: $PRODUCT"
+}
+
+function _set_env {
+    export ENV=$1
+    echo "Environment: $ENV"
+}
+
+function _set_profile {
+    export AWS_PROFILE=$1
+    echo "Profile: $AWS_PROFILE"
+}
+
+function _set_deployer_profile {
+    _set_profile "$PRODUCT-deployer"
+}
+
+function _set_nondeployer_profile {
+    if [ "$ENV" == "prd" ]; then
+        export PRD_NONPRD="prd"
+    else
+        export PRD_NONPRD="nonprd"
+    fi
+    _set_profile "$PRODUCT-$PRD_NONPRD-deployer"
+}
+
+function _set_region {
+    export AWS_REGION=us-west-2
+    echo "Region: $AWS_REGION"
+}
+
+function _set_cluster {
+    export CLUSTER_NAME="$PRODUCT-$ENV-0"
+    aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+    echo "Cluster: $CLUSTER_NAME"
+    export NAMESPACE=$PRODUCT
+    kubectl config set-context --current --namespace=$NAMESPACE
+    echo "Namespace: $NAMESPACE"
+}
+
+function switch {
+    valid_envs=("dev", "stg", "prd")
+    _set_product $1
+    _set_env $2
+    _set_region
+    if [ "$2" == "deploy" ]; then
+        _set_deployer_profile
+    elif [[ ${valid_envs[@]} =~ $2 ]]; then
+        _set_nondeployer_profile
+        _set_cluster
+    else
+        echo "Incorrect environmnt set: $2"
+        return
+    fi
+    export PRODUCT_ENV="$PRODUCT-$ENV"
+    cd "$GIT_QEMIST" || echo "Directory $GIT_QEMIST does not exist"
+}
+
+function deploy {
+    switch $1 deploy
+    cd "$GIT_QEMIST_INFRA" || echo "Directory $GIT_QEMIST_INFRA does not exist"
+}
+
+function devops {
+    DIRECTORY=$GIT_BASE/aws_devops
+    if [ -n "$1" ]; then
+        DIRECTORY=$DIRECTORY/products/$1
+    fi
+    _set_profile "623101915517_gc-admin"
+    cd "$DIRECTORY" || echo "Directory $DIRECTORY does not exist"
+}

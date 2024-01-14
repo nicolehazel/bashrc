@@ -1,0 +1,21 @@
+###########################################################################
+### Git extensions
+###
+### Notes:
+### - Some of the functions below are required for setting PS1 in .bashrc
+###########################################################################
+
+# Environment Variables
+export GIT_BASE="$HOME/git/gc"
+export GIT_AWS_DEVOPS="$GIT_BASE/aws_devops"
+export GIT_QEMIST="$GIT_BASE/qemist-cloud"
+export GIT_QEMIST_INFRA="$GIT_BASE/qemist-cloud-infra"
+export GIT_GITHUB_INFRA="$GIT_BASE/github-infra"
+export GIT_AUTH0_INFRA="$GIT_BASE/auth0-infra"
+export GIT_QUANTUM_INFRA="$GIT_BASE/quantum-infra"
+
+### ALIASES
+alias g="git"
+alias gd="git diff"
+alias gref='git fetch origin && git merge origin/$(git rev-parse --abbrev-ref HEAD) && git fetch --prune'
+alias gsync='git fo && g m origin/master && g f --prune'

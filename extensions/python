@@ -1,0 +1,12 @@
+###########################################################################
+### Python Extensions
+###########################################################################
+
+alias pip='pip3'
+alias python="python3"
+alias py='python3'
+#alias pyl="pylint $(find . -type d \( -path ./protocloud/protocloud/tests -o -path ./Tangelo -o -path ./client_lib -o -path ./benchmarks -o -path ./qemist_sdk -o -path ./_local_testing -o -path ./frontend -o -path ./e2e_tests -o -path ./tools  \) -prune -type f -o -name '*.py')"
+
+# Formatting tool for json.
+# Ref: https://docs.python.org/3/library/json.html#module-json.tool
+alias pjson='python -m json.tool'
