@@ -1,0 +1,11 @@
+###########################################################################
+### Connect to dev EC2 instance
+###########################################################################
+
+# My ec2 instance for development 
+EC2_INSTANCE_ID=i-08c7268221aa03e9b
+
+# ssh-add --apple-use-keychain "$HOME/.ssh/nicole-dev.pem"
+
+### ALIASES
+alias ssh_dev="ssh -i 'nicole-dev-2.pem' ec2-user@ec2-35-88-49-33.us-west-2.compute.amazonaws.com"

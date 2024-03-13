@@ -6,7 +6,6 @@
 alias l='ls -CF'
 alias ll='ls -alhF'
 alias la='ls -A'
-alias less='less -R'
 
 
 ### FUNCTIONS

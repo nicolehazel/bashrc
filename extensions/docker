@@ -2,7 +2,7 @@
 ### Docker Extensions
 ###########################################################################
 
-export DOCKER_DEFAULT_PLATFORM=linux/x86_64
+# export DOCKER_DEFAULT_PLATFORM=linux/x86_64
 
 alias dps='docker ps'
 alias dpsa='docker ps -a'

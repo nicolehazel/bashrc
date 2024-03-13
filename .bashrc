@@ -30,7 +30,7 @@ export PATH="$HOME/.rd/bin:$PATH"
 # RUST (I didn't add this)
 . "$HOME/.cargo/env"
 
-export PATH="~/Library/Python/3.10/bin:/usr/local/opt/python/libexec/bin:/opt/homebrew/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/opt/redis/bin:$HOME/gcp/google-cloud-sdk/bin:$PATH"
+export PATH="~/Library/Python/3.10/bin:/usr/local/opt/python/libexec/bin:/opt/homebrew/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/opt/redis/bin:$HOME/gcp/google-cloud-sdk/bin:$PATH:$HOME/Library/Python/3.9/bin"
 export PYTHONPATH="$HOME/git/gc/pyscf:$HOME/git/gc/qemist-cloud/qemist_sdk:$HOME/git/gc/qemist-cloud/protocloud:$HOME/git/gc/qemist-cloud/client_lib/release_lib"
 
 function source_ext() {
@@ -47,14 +47,14 @@ function source_ext() {
 echo "Adding extensions:"
 source_ext aws
 source_ext bash_aliases
+# source_ext dev
 source_ext docker
-source_ext gcp
-source_ext git
-source_ext jenkins
+# source_ext gcp
+# source_ext git
+# source_ext jenkins
 source_ext kubectl
-# source_ext openai
-source_ext ps
+# source_ext ps
 source_ext python
 source_ext qemist
-source_ext ssh
+# source_ext ssh
 source_ext terraform
